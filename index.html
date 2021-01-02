@@ -4,6 +4,7 @@
     <script type="module">
       // example from https://webcomponents.dev/edit/i72WfCCVWQQpeXD2IDDI
       const template = document.createElement("template");
+      
       template.innerHTML = /*html*/`
         <style>
           * {
@@ -38,12 +39,9 @@
         }
 
         connectedCallback() {
-          console.debug('connectedCallback', this);
-          console.debug('mode', this.shadowRoot.mode); // only works when "open"
-          const self = document.querySelector('my-counter');
-          
-          if (self) {
-            this.count = parseInt(self.querySelector('#count').textContent, 10);
+          // TODO only works when mode is "open"
+          if (this.shadowRoot.getRootNode().host.children.length > 0) {
+            this.count = parseInt(this.querySelector('#count').textContent, 10);
           }
 
           this.shadowRoot.appendChild(template.content.cloneNode(true));
@@ -69,7 +67,12 @@
     </script>
   </head>
   <body>
+
+    <h1>Counter (empty)</h1>
+    <my-counter>
+    </my-counter>
     
+    <h1>Counter (hydrate)</h1>
     <my-counter>
       <button id="dec">-</button>
       <span id="count">33</span>

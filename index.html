@@ -2,6 +2,7 @@
 <html>
   <head>
     <script type="module">
+      import { HydrateElement } from "./hydrate.js";
       // example from https://webcomponents.dev/edit/i72WfCCVWQQpeXD2IDDI
       const template = document.createElement("template");
       
@@ -31,19 +32,18 @@
         <button id="inc">+</button>
       `;
 
-      class MyCounter extends HTMLElement {
+      class MyCounter extends HydrateElement {
         constructor() {
           super();
           this.count = 0;
-          this.attachShadow({ mode: "open" });
+          this.attachShadow({ mode: "open" }); // TODO only works when mode is "open"
         }
 
-        connectedCallback() {
-          // TODO only works when mode is "open"
-          if (this.shadowRoot.getRootNode().host.children.length > 0) {
+        async connectedCallback() {
+          await this.rehydrate(this, async () => {
             this.count = parseInt(this.querySelector('#count').textContent, 10);
-          }
-
+          });
+          
           this.shadowRoot.appendChild(template.content.cloneNode(true));
           this.shadowRoot.getElementById("inc").onclick = () => this.inc();
           this.shadowRoot.getElementById("dec").onclick = () => this.dec();
@@ -69,10 +69,9 @@
   <body>
 
     <h1>Counter (empty)</h1>
-    <my-counter>
-    </my-counter>
+    <my-counter></my-counter>
     
-    <h1>Counter (hydrate)</h1>
+    <h1>Counter (hydrated)</h1>
     <my-counter>
       <button id="dec">-</button>
       <span id="count">33</span>
